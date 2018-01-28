@@ -65,3 +65,9 @@ class Inventory:
             returned.append((None, None))
 
         return returned
+
+class Creature(IDAble, Descriptable):
+    def __init__(self, ID, name, desc):
+        IDAble.__init__(ID)
+        self.name = name
+        Descriptable.__init__(desc)
