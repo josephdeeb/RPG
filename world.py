@@ -1,79 +1,56 @@
-class Descriptable:
+import things
+
+class Action(Descriptable):
     """
-    We need to have the description object represent various descriptions depending upon player status, items, etc.
-    """
-    def __init__(self, desc):
-        self.desc = desc
 
     """
-    This will be the function that determines what description to use.
-    """
-    def getDesc(self):
-        return desc
-
-class IDAble:
-    """
-    This object has a unique ID assigned to it by the game
-    """
-    def __init__(self, ID):
-        self.ID = ID
-
-class Item(IDAble, Descriptable):
-    def __init__(self, ID, name, desc):
-        IDAble.__init__(ID);
+    def __init__(self, name, desc):
         self.name = name
-        Descriptable.__init__(desc);
-
-class Inventory:
-    def __init__(self, items = []):
-        self.items = items
-
-    def addItem(self, item):
-        self.items.append(item)
-
-    def delItem(self, index = None, ID = None):
-        returned = None
-        if index is not None:
-            returned = self.items.pop(index)
-
-        elif ID is not None:
-            returned = self.items.pop(self.searchItems(ID)[0])
-
-        return returned
-
-    """
-    Searches for item by name or ID, returns a list of tuples where each tuple is:
-    (Item, Index)
-    If searching by name, will return all items matching the name
-    If searching by ID, will return only one item
-    Returns an empty list if item is not found
-    """
-    def searchItems(self, ID = None, name = None):
-        returned = []
-        if ID is not None:
-            for i in range(len(items)):
-                if isinstance(items[i], IDAble):
-                    returned.append((items[i], i))
-                    break
-
-        elif name is not None:
-            for i in range(len(items)):
-                if items[i].name = name:
-                    returned.append((items[i], i))
-
-        if not returned:
-            returned.append((None, None))
-
-        return returned
+        Descriptable.__init__(desc)
 
 
 class Location(IDAble, Descriptable):
-    def __init__(self, ID, name, desc):
+    """
+    Variables:
+        ID, name, desc: ID, name, and description
+        inventory:      Inventory of all things in the location
+        states:         Possible locations that this location can become (Forest has a burnt state, cave has a collapsed state, etc.)
+        exits:          All possible exits
+        locationSet:    All sub-locations within this location
+    """
+    def __init__(self, ID, name, desc, inventory = Inventory(), states = {}, exits = {}, superLocation = None, locationSet = None):
         IDAble.__init__(ID)
         self.name = name
         Descriptable.__init__(desc)
+        self.inventory = inventory
+        self.states = states
+        self.exits = exits
+        self.locationSet = locationSet
+        self.superLocation = superLocation
+
+    def changeState(self, Action):
+
+    """
+
+    """
+    def getDesc(self):
+
+
+
 
 class World:
     def __init__(self, name, height = 0, width = 0) :
         self.name = name
         self.locations = [[0 for x in range(width)] for y in range(height)] #Verify this works
+
+
+
+study = Location(0, "Study", "")
+
+
+"""
+    TEST:
+        Study with a button on the desk underneath some papers.  Clearing the papers reveals a button, then hitting the button opens a doorway to a dark hallway.
+
+    Location with a desk in its inventory, the desk has a button in ITS inventory with status "not visible".  Action of clearing the papers makes the button visible.
+"""

@@ -7,6 +7,7 @@ class Descriptable:
 
     """
     This will be the function that determines what description to use.
+    Should return visible items
     """
     def getDesc(self):
         return desc
@@ -40,6 +41,12 @@ class Inventory:
             returned = self.items.pop(self.searchItems(ID)[0])
 
         return returned
+
+    def getItem(self, index):
+        return self.items[index]
+
+    def popItem(self, index):
+        return self.items.pop(index)
 
     """
     Searches for item by name or ID, returns a list of tuples where each tuple is:
