@@ -73,8 +73,27 @@ class Inventory:
 
         return returned
 
+class Race:
+    def __init__(self, name):
+        pass
+
+class Ability:
+    def __init__(self, name, value = 0):
+        self.name = name
+        self.value = value
+
+defaultAbilities = {
+    "str" : Ability("Strength"),
+    "dex" : Ability("Dexterity"),
+    "con" : Ability("Constitution"),
+    "int" : Ability("Intelligence"),
+    "wis" : Ability("Wisdom"),
+    "cha" : Ability("Charisma")
+}
+
 class Creature(IDAble, Descriptable):
     def __init__(self, ID, name, desc):
         IDAble.__init__(ID)
         self.name = name
         Descriptable.__init__(desc)
+        self.abilities = dict(defaultAbilities)

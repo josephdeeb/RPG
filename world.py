@@ -29,6 +29,7 @@ class Location(IDAble, Descriptable):
         self.superLocation = superLocation
 
     def changeState(self, Action):
+        pass
 
     """
 
