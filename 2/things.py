@@ -1,29 +1,11 @@
 class Enum:
-
-class Requirement:
-    def __init__(self, name, amount):
-        # Name of the thing being polled for requirement
-        # String
-        self.name = name
-        # Amount required of the thing being polled for requirement
-        # Integer
-        self.amount = amount
-
-class Transition:
-    def __init__(self, action, requirement, state):
-        # String
-        self.action = action
-        # Requirement
-        self.requirement = requirement
-        # State which the transition takes you to
-        # State
-        self.state = state
+    pass
 
 class State:
     def __init__(self, name, transitions, char):
         # String
         self.name = name
-        # Dict where keys are action Strings, values are transitions
+        # Dict where keys are action Strings, values are a 2tuple with (amount, State)
         self.transitions = transitions
         # Char
         self.char = char
@@ -43,15 +25,18 @@ class Thing:
     def getChar(self):
         return currentState.char
 
-    def update(self, action, thing):
-        if
+    def update(self, action, thing, amount = None):
+        if action in self.currentState.transitions.keys():
+            transition = self.currentState.transitions[action]
+            if
+
+
 
 dftransitions = {
-    "FORCE": Transition()
+    "DAMAGE": Transition()
 }
 
 things = [
     Thing("Dungeon Floor", ),
-    Thing("Dungeon Wall", '#'),
-    Thing("Wooden Rope Bridge", '=')
+    Thing("Dungeon Wall", '#')
 ]
