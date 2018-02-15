@@ -1,9 +1,6 @@
 class Enum:
     pass
 
-class Transitions:
-    def __init__(self, )
-
 class State:
     def __init__(self, name, transitions, char):
         # String
@@ -38,6 +35,7 @@ class Thing:
         self.currentState = states[name]
 
     def update(self, action, amount = 0):
+
         """
         if action in self.currentState.transitions.keys():
             transition = self.currentState.transitions[action]
@@ -45,11 +43,24 @@ class Thing:
                 changeState(transition[1])
         """
 
+defaultAttributes = {
+    "Health": 0,
+    "Mana": 0,
+    "Armor": 0,
+}
 
 dungeonFloorTransitions = {
-    # if dungeonFloor has attribute named HEALTH, if dungeonFloor is in state NORMAL, if HEALTH is less than or equal to 10, change state to BROKEN
-    "ATTR_HEALTH": {"NORMAL": (-10, "BROKEN"), }
+    "ATTR_HEALTH": {"STATE_NORMAL": ("<=0", "STATE_BROKEN"), "STATE_BROKEN": (">=0", "STATE_NORMAL")},
 }
+
+
+"""
+dungeonFloorTransitions = {
+    # if dungeonFloor has attribute named HEALTH, if dungeonFloor is in state NORMAL, if HEALTH is less than or equal to 10, change state to BROKEN
+    "ATTR_HEALTH": {"STATE_NORMAL": (-10, "STATE_BROKEN")},
+    "HEALED": {"STATE_"}
+}
+"""
 
 """
 dungeonFloorNotBrokenTransitions = {
@@ -60,8 +71,3 @@ dungeonFloorBrokenTransitions = {
     "REPAIR": (0, "NOTBROKEN")
 }
 """
-
-things = [
-    Thing("Dungeon Floor", ),
-    Thing("Dungeon Wall", '#')
-]
