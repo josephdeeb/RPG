@@ -18,7 +18,9 @@ class Map:
         self.things[x][y].append(thing)
 
     def getChar(self, x, y):
-        return self.things[y][x][-1].getAttribute("char")
+        if len(self.things[y][x]) > 0:
+            return self.things[y][x][-1].getAttribute("char")
+        return " "
 
     def __str__(self):
         returned = ""
@@ -28,9 +30,24 @@ class Map:
             returned += "\n"
         return returned
 
+    def fillArea(self, x1, x2, y1, y2, thing):
+        for y in range(abs(y2 - y1)):
+            for x in range(abs(x2 - x1)):
+                self.addThing(thing, x, y)
+
+    #FINISH THIS
+    def validate(self, x, y):
+        for i in range(len(self.things[y][x])):
+            self.things[y][x][i]
+
+
 class Thing:
-    def __init__(self, name, char):
-        self.attributes = {"char": char, "name": name}
+    def __init__(self, name, char, pathable = True):
+        self.attributes = {
+            "char": char,
+            "name": name,
+            "pathable": pathable
+        }
 
     def getAttribute(self, string):
         return self.attributes[string]
@@ -38,4 +55,8 @@ class Thing:
 map = Map("fuck", 10, 10)
 map.addThing(Thing("wall", "@"), 0, 0)
 map.addThing(Thing("wall", "@"), 0, 1)
+map.addThing(Thing("floor", "#"), 0, 1)
+print(map)
+
+map.fillArea(0, 5, 0, 5, Thing("floor", "#"))
 print(map)
