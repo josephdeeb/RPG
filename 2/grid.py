@@ -1,4 +1,3 @@
-
 class Grid:
     def __init__(self, x, y):
         self.grid = [[' ' for i in range(x)] for j in range(y)]
@@ -15,7 +14,7 @@ class Map:
         self.y = y
 
     def addThing(self, thing, x, y):
-        self.things[x][y].append(thing)
+        self.things[y][x].append(thing)
 
     def getChar(self, x, y):
         if len(self.things[y][x]) > 0:
@@ -31,8 +30,8 @@ class Map:
         return returned
 
     def fillArea(self, x1, x2, y1, y2, thing):
-        for y in range(abs(y2 - y1)):
-            for x in range(abs(x2 - x1)):
+        for y in range(y1, y2+1):
+            for x in range(x1, x2+1):
                 self.addThing(thing, x, y)
 
     #FINISH THIS
@@ -52,11 +51,18 @@ class Thing:
     def getAttribute(self, string):
         return self.attributes[string]
 
+
+preconstructed = {
+    "floor": Thing("floor", " ", pathable=True),
+    "wall": Thing("wall", "#", pathable=False)
+}
+
 map = Map("fuck", 10, 10)
-map.addThing(Thing("wall", "@"), 0, 0)
-map.addThing(Thing("wall", "@"), 0, 1)
-map.addThing(Thing("floor", "#"), 0, 1)
 print(map)
 
-map.fillArea(0, 5, 0, 5, Thing("floor", "#"))
+map.fillArea(0, 9, 0, 9, preconstructed["floor"])
+map.fillArea(0, 9, 0, 0, preconstructed["wall"])
+map.fillArea(0, 9, 9, 9, preconstructed["wall"])
+map.fillArea(0, 0, 0, 9, preconstructed["wall"])
+map.fillArea(9, 9, 0, 9, preconstructed["wall"])
 print(map)
