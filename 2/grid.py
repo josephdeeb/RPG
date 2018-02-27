@@ -15,6 +15,8 @@ class Map:
 
     def addThing(self, thing, x, y):
         self.things[y][x].append(thing)
+        thing.setAttribute("x", x)
+        thing.setAttribute("y", y)
 
     def getChar(self, x, y):
         if len(self.things[y][x]) > 0:
@@ -45,11 +47,16 @@ class Thing:
         self.attributes = {
             "char": char,
             "name": name,
-            "pathable": pathable
+            "pathable": pathable,
+            "x": None,
+            "y": None
         }
 
     def getAttribute(self, string):
         return self.attributes[string]
+
+    def setAttribute(self, name, change):
+        self.attributes[name] = change
 
 
 preconstructed = {
