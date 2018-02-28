@@ -5,7 +5,6 @@ class Grid:
     def setChar(self, x, y, char):
         self.grid[x][y] = char
 
-
 class Map:
     def __init__(self, name, x, y):
         self.name = name
@@ -18,10 +17,21 @@ class Map:
         thing.setAttribute("x", x)
         thing.setAttribute("y", y)
 
+    def getThing(self, x, y):
+        return self.things[y][x][-1]
+
     def getChar(self, x, y):
         if len(self.things[y][x]) > 0:
             return self.things[y][x][-1].getAttribute("char")
         return " "
+
+    def pop(self, x, y, ID = None):
+        if ID == None:
+            return self.things[y][x].pop()
+        else:
+            for index, thing in enumerate(self.things):
+                if thing.ID == ID:
+                    return self.things[y][x].pop(index)
 
     def __str__(self):
         returned = ""
@@ -37,13 +47,14 @@ class Map:
                 self.addThing(thing, x, y)
 
     #FINISH THIS
-    def validate(self, x, y):
-        for i in range(len(self.things[y][x])):
+    def checkPathing(self, x, y):
+        for i in range(len(self.things[y][x]), ):
             self.things[y][x][i]
 
 
 class Thing:
-    def __init__(self, name, char, pathable = True):
+    def __init__(self, ID, name, char, pathable = True):
+        self.ID = ID
         self.attributes = {
             "char": char,
             "name": name,
@@ -51,6 +62,9 @@ class Thing:
             "x": None,
             "y": None
         }
+
+    def getID(self):
+        return self.ID
 
     def getAttribute(self, string):
         return self.attributes[string]
