@@ -46,10 +46,21 @@ class Map:
             for x in range(x1, x2+1):
                 self.addThing(thing, x, y)
 
-    #FINISH THIS
+    # Checks to see if a new object can be added to the location by seeing if there is any unpathable things there
     def checkPathing(self, x, y):
-        for i in range(len(self.things[y][x]), ):
-            self.things[y][x][i]
+        for i in range(len(self.things[y][x])):
+            if self.things[y][x][i].getAttribute("pathable") == False:
+                return False
+        return True
+    
+    def validatePathing(self, x, y):
+        previous = False
+        for i in range(len(self.things[y][x])):
+            if previous:
+                return False
+            if self.things[y][x][i].getAttribute("pathable") == False:
+                previous = True
+        return True
 
 
 class Thing:
