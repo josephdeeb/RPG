@@ -53,6 +53,9 @@ class Map:
                 return False
         return True
     
+    # Checks to see if there are any objects placed above an unpathable object at the given location
+    # Returns True if there are no objects placed above an unpathable object
+    # Returns False if there IS at least one object placed above an unpathable object
     def validatePathing(self, x, y):
         previous = False
         for i in range(len(self.things[y][x])):
