@@ -17,8 +17,19 @@ class Map:
         thing.setAttribute("x", x)
         thing.setAttribute("y", y)
 
-    def getThing(self, x, y):
-        return self.things[y][x][-1]
+    # If no ID is specified, returns Thing from top of list.
+    # If an ID is specified, goes through the list searching for a Thing with the given ID.  If it is found, returns that Thing.
+    # If no Thing is found from either method, returns None
+    def getThing(self, x, y, ID=None):
+        if ID == None:
+            if len(self.things[y][x]) > 0:
+                return self.things[y][x][-1]
+            return None
+        else:
+            for i in range(len(self.things[y][x])):
+                if self.things[y][x][i].getID == ID:
+                    return self.things[y][x][i]
+            return None
 
     def getChar(self, x, y):
         if len(self.things[y][x]) > 0:
