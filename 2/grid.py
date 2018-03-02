@@ -63,7 +63,7 @@ class Map:
             if self.things[y][x][i].getAttribute("pathable") == False:
                 return False
         return True
-    
+
     # Checks to see if there are any objects placed above an unpathable object at the given location
     # Returns True if there are no objects placed above an unpathable object
     # Returns False if there IS at least one object placed above an unpathable object
@@ -81,8 +81,8 @@ class Thing:
     def __init__(self, ID, name, char, pathable = True):
         self.ID = ID
         self.attributes = {
-            "char": char,
             "name": name,
+            "char": char,
             "pathable": pathable,
             "x": None,
             "y": None
@@ -96,19 +96,3 @@ class Thing:
 
     def setAttribute(self, name, change):
         self.attributes[name] = change
-
-
-preconstructed = {
-    "floor": Thing("floor", " ", pathable=True),
-    "wall": Thing("wall", "#", pathable=False)
-}
-
-map = Map("fuck", 10, 10)
-print(map)
-
-map.fillArea(0, 9, 0, 9, preconstructed["floor"])
-map.fillArea(0, 9, 0, 0, preconstructed["wall"])
-map.fillArea(0, 9, 9, 9, preconstructed["wall"])
-map.fillArea(0, 0, 0, 9, preconstructed["wall"])
-map.fillArea(9, 9, 0, 9, preconstructed["wall"])
-print(map)
