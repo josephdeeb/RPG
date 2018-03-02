@@ -6,4 +6,12 @@ def makeID():
     things += 1
     return things
 
-while True:
+class IOWrapper:
+    def __init__(self):
+        pass
+    
+    def input(self):
+        return "input() NOT DEFINED FOR IOWrapper"
+    
+    def output(self):
+        return "output() NOT DEFINED FOR IOWrapper
