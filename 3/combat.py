@@ -1,8 +1,5 @@
 import random
 
-class CombatQueueNode:
-    def __init__(self, action, )
-
 class CombatQueue:
     def __init__(self):
         self.queue = list()
