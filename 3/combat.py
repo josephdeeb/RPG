@@ -28,8 +28,35 @@ def roll(amount, sides):
     print("Total: {}\n".format(result))
     return result
 
-def combat(sideOne, sideTwo):
+class BattleMapBucket:
+    def __init__(self, bucket=[], maxSize=5):
+        self.bucket = bucket
+        self.maxSize = maxSize
 
+    def add(self, combattant):
+        if len(bucket) >= maxSize:
+            return False
+        bucket.append(combattant)
+        return True
+
+class BattleMap:
+    def __init__(self, combattants, size=6):
+        self.combattants = combattants
+        self.size = size
+        self.map = [[] for x in range(size)]
+
+class Combattant:
+    def __init__(self, hp=5, damage=1, char):
+        self.hp = hp
+        self.damage = damage
+        self.char = char
+
+    def takeDamage(self, damage):
+        newhp = self.hp - damage
+        if newhp < 0:
+            self.hp = 0
+        else:
+            self.hp = newhp
 
 class DMG_TYPE:
     PIERCE = 1
