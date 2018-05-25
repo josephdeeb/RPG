@@ -33,23 +33,49 @@ class BattleMapBucket:
         self.bucket = bucket
         self.maxSize = maxSize
 
-    def add(self, combattant):
-        if len(bucket) >= maxSize:
+    def add(self, id):
+        if len(self.bucket) >= self.maxSize:
             return False
-        bucket.append(combattant)
+        self.bucket.append(id)
         return True
+
+    def remove(self, id):
+        self.bucket.remove(id)
+
+    def contains(self, id):
+        if id in self.bucket:
+            return True
+        return False
 
 class BattleMap:
     def __init__(self, combattants, size=6):
         self.combattants = combattants
-        self.size = size
-        self.map = [[] for x in range(size)]
+        self.map = [BattleMapBucket() for x in range(size)]
+
+    def move(self, id, amount):
+        for x in range(len(self.map)):
+            if self.map[x].contains(id):
+                self.map[x].remove(id)
+                newX = x + amount
+                if newX >= len(self.map):
+                    self.map[len(self.map)-1].add(id)
+                    return True
+                if newX < 0:
+                    self.map[0].add(id)
+                    return True
+                self.map[newX].add(id)
+                return True
+        return False
+
+    def retrieveCombattant(self, id):
+        return self.combattants[id]
 
 class Combattant:
-    def __init__(self, hp=5, damage=1, char):
+    def __init__(self, hp=5, damage=1, char, name, id):
         self.hp = hp
         self.damage = damage
         self.char = char
+        self.id = id
 
     def takeDamage(self, damage):
         newhp = self.hp - damage
