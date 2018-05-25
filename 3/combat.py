@@ -11,16 +11,34 @@ def roll(amount, sides):
     return result
 
 
-def generateInterface(BattleMap, width, height):
-    final = "╔"
-    final += "═" * width - 2
-    final += "╗"
+def generateInterface(bm, width, height):
+    final = "╔" + ("═" * width - 2) + "╗\n"
+    final += "║"
+    counter = 2
+    allChars = []
+    maxChars = 0
+    for i in range(len(bm.map)):
+        allChars.append(bm.getAllChars(i))
+        if len(allChars[i]) > maxChars:
+            maxChars = len(allChars[i])
+
+    for i in range(len(bm.map)):
+        # if we have exhausted all available space, just stop printing the map.
+        if counter >= width:
+            final += "║"
+            break
+        # Otherwise, we have more space, add a space and then the appropriate char for the map
+        final += " " + allChars........
+
 
 
 interface = """
 ╔════════════════════════════╗
 ║ {0} {1} {2} {3} {4}                  ║
 ║  0   1   2   3   4         ║
+║ {0}:{5}                        ║
+║ {1}:{6}                        ║
+║                            ║
 ║                            ║
 ║                            ║
 ║ What would you like to do? ║
@@ -50,7 +68,7 @@ class BattleHandler:
 
 
 class BattleMapBucket:
-    def __init__(self, bucket=[], maxSize=5):
+    def __init__(self, bucket=[], maxSize=4):
         self.bucket = bucket
         self.maxSize = maxSize
 
@@ -68,10 +86,40 @@ class BattleMapBucket:
             return True
         return False
 
+    def getElement(self, n):
+        if len(self.bucket) < n:
+            return self.bucket[n]
+        return False
+
+    def getAllElements(self):
+        return list(self.bucket)
+
+    def isEmpty(self):
+        if len(self.bucket) > 0:
+            return False
+        return True
+
+    def __len__(self):
+        return len(self.bucket)
+
 class BattleMap:
     def __init__(self, combattants, size=6):
         self.combattants = combattants
         self.map = [BattleMapBucket() for x in range(size)]
+
+    def getChar(self, location):
+        if location > len(self.map) or location < 0:
+            return False
+        if self.map[location].isEmpty():
+            return " "
+        return retrieveCombattant(self, self.map[location].getElement(0)).char
+
+    def getAllChars(self, location):
+        if location > len(self.map) or location < 0:
+            return False
+        if self.map[location].isEmpty():
+            return [" "]
+        return self.map[location].getAllElements()
 
     def move(self, id, amount):
         combattant = self.retrieveCombattant(id)
