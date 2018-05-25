@@ -1,23 +1,5 @@
 import random
 
-class CombatQueue:
-    def __init__(self):
-        self.queue = list()
-
-    def enqueue(self, action):
-        self.queue.append(action)
-
-    def dequeue(self):
-        if len(self.queue) > 0:
-            return self.queue.pop()
-        return None
-
-class CombatAction:
-    def __init__(self, actor, target, action):
-        self.actor = actor
-        self.target = target
-        self.action = action
-
 def roll(amount, sides):
     result = 0
     print("\nRolling {}d{}...".format(amount,sides))
@@ -53,36 +35,55 @@ class BattleMap:
         self.map = [BattleMapBucket() for x in range(size)]
 
     def move(self, id, amount):
-        for x in range(len(self.map)):
-            if self.map[x].contains(id):
-                self.map[x].remove(id)
-                newX = x + amount
-                if newX >= len(self.map):
-                    self.map[len(self.map)-1].add(id)
-                    return True
-                if newX < 0:
-                    self.map[0].add(id)
-                    return True
-                self.map[newX].add(id)
-                return True
-        return False
+        combattant = self.retrieveCombattant(id)
+        position = combattant.location
+        newPos = position + amount
+        if newPos >= len(self.map):
+            newPos = len(self.map) - 1
+        elif newPos < 0:
+            newPos = 0
+        if self.map[newPos].add(id) == True:
+            self.map[position].remove(id)
+            combattant.location = newPos
+            return True
+        else:
+            return False
 
     def retrieveCombattant(self, id):
         return self.combattants[id]
 
+    def getDistance(self, id1, id2):
+        return -(self.retrieveCombattant(id1).location - self.retrieveCombattant(id2).location)
+        
+
 class Combattant:
-    def __init__(self, hp=5, damage=1, char, name, id):
-        self.hp = hp
-        self.damage = damage
+    def __init__(self, location=0, char, name, ID):
+        self.location = location
         self.char = char
-        self.id = id
+        self.ID = ID
 
     def takeDamage(self, damage):
-        newhp = self.hp - damage
-        if newhp < 0:
-            self.hp = 0
-        else:
-            self.hp = newhp
+        return False
+
+    def getDamage(self):
+        return False
+
+class SimpleCombattant(Combattant):
+    def __init__(self, health=5, damage=1, location=0, char, name, ID):
+        self.health = health
+        self.damage = damage
+        super().__init__(location, char, ID)
+
+
+    def takeDamage(self, damage):
+        newHealth = self.health - damage
+        if newHewlth < 0:
+            self.health = 0
+        self.health = newHealth
+
+    def getDamage(self):
+        return self.damage
+
 
 class DMG_TYPE:
     PIERCE = 1
