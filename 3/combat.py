@@ -10,6 +10,45 @@ def roll(amount, sides):
     print("Total: {}\n".format(result))
     return result
 
+
+def generateInterface(BattleMap, width, height):
+    final = "╔"
+    final += "═" * width - 2
+    final += "╗"
+
+
+interface = """
+╔════════════════════════════╗
+║ {0} {1} {2} {3} {4}                  ║
+║  0   1   2   3   4         ║
+║                            ║
+║                            ║
+║ What would you like to do? ║
+╚════════════════════════════╝
+"""
+
+class IOAbstract:
+    def getInput(self):
+        return False
+    def output(self, string):
+        return False
+
+class IOCommandLine(IOAbstract):
+    def getInput(self):
+        string = input()
+    def output(self, string):
+        print(string)
+
+class BattleHandler:
+    def __init__(self, BattleMap, IO):
+        self.BattleMap = BattleMap
+        self.IO = IO
+
+    def mainLoop(self):
+        battleGoing = True
+        while battleGoing:
+
+
 class BattleMapBucket:
     def __init__(self, bucket=[], maxSize=5):
         self.bucket = bucket
@@ -54,9 +93,9 @@ class BattleMap:
 
     def getDistance(self, id1, id2):
         return -(self.retrieveCombattant(id1).location - self.retrieveCombattant(id2).location)
-        
 
-class Combattant:
+
+class CombattantAbstract:
     def __init__(self, location=0, char, name, ID):
         self.location = location
         self.char = char
@@ -68,12 +107,11 @@ class Combattant:
     def getDamage(self):
         return False
 
-class SimpleCombattant(Combattant):
+class SimpleCombattant(CombattantAbstract):
     def __init__(self, health=5, damage=1, location=0, char, name, ID):
         self.health = health
         self.damage = damage
         super().__init__(location, char, ID)
-
 
     def takeDamage(self, damage):
         newHealth = self.health - damage
