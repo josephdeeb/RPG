@@ -1,5 +1,6 @@
 import random
 
+
 def roll(amount, sides):
     result = 0
     print("\nRolling {}d{}...".format(amount,sides))
@@ -11,21 +12,22 @@ def roll(amount, sides):
     return result
 
 
-def generateMapLine(bm, width):
-    final = "║"
-    counter = 2
-    allChars = []
-    for char in
-
 # taken from https://stackoverflow.com/questions/1541797/how-do-i-check-if-there-are-duplicates-in-a-flat-list?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
 def checkDuplicates(theList):
     seen = set()
+    count = {x: -1 for x in theList}
+
     for x in range(len(theList)):
+        if theList[x] == " ":
+            pass
+        count[theList[x]] += 1
         if theList[x] in seen:
-            theList[x] = theList[x] + " "
-            return True
+            theList[x] = theList[x] + " " + str(count[theList[x]])
+
         seen.add(theList[x])
-    return False
+
+    return theList
+
 
 def generateInterface(bm, width, height):
     final = "╔" + ("═" * width - 2) + "╗\n"
@@ -39,7 +41,10 @@ def generateInterface(bm, width, height):
             maxChars = len(allChars[i])
 
     # Figure out ithere are any repeats in allChars...
-    for i in
+    merged = []
+    for x in range(len(bm.map)):
+        merged += bm.map[x]
+    merged = checkDuplicates(merged)
 
     for i in range(len(bm.map)):
         # if we have exhausted all available space, just stop printing the map.
@@ -86,12 +91,15 @@ interface = """
 ╚════════════════════════════╝
 """
 
+
+
 class IOAbstract:
     def getInput(self):
         return False
 
     def output(self, string):
         return False
+
 
 class IOCommandLine(IOAbstract):
     def getInput(self):
@@ -109,9 +117,8 @@ class BattleHandler:
         battleGoing = True
         while battleGoing:
 
-
 class BattleMapBucket:
-    def __init__(self, bucket=[], maxSize=4):
+    def __init__(self, bucket=[" " for x in range(maxSize)], maxSize=4):
         self.bucket = bucket
         self.maxSize = maxSize
 
@@ -152,6 +159,7 @@ class BattleMapBucket:
     def __len__(self):
         return len(self.bucket)
 
+
 class BattleMap:
     def __init__(self, combattants, size=6):
         self.combattants = combattants
@@ -159,6 +167,7 @@ class BattleMap:
 
     def getMaxSize(self):
         maxSize = 0
+
         for thing in self.map:
             if thing.getSize() > maxSize:
                 maxSize = thing.getSize()
@@ -166,7 +175,7 @@ class BattleMap:
         return maxSize
 
     def getChar(self, location, n=-1):
-        if n = -1:
+        if n == -1:
             if location > len(self.map) or location < 0:
                 return False
 
@@ -191,14 +200,16 @@ class BattleMap:
         else:
             returned = []
             seen = set()
-            for x in self.map[location].getAllements():
+            char = " "
+            for x in self.map[location].getAllElements():
                 char = retrieveCombattant(x).char
-                if char
+                #if char
 
     def move(self, id, amount):
         combattant = self.retrieveCombattant(id)
         position = combattant.location
         newPos = position + amount
+
         if newPos >= len(self.map):
             newPos = len(self.map) - 1
 
@@ -221,10 +232,11 @@ class BattleMap:
 
 
 class CombattantAbstract:
-    def __init__(self, location=0, char, name, ID):
-        self.location = location
+    def __init__(self, char, name, ID, location=0):
         self.char = char
+        self.name = name
         self.ID = ID
+        self.location = location
 
     def takeDamage(self, damage):
         return False
@@ -232,8 +244,9 @@ class CombattantAbstract:
     def getDamage(self):
         return False
 
+
 class SimpleCombattant(CombattantAbstract):
-    def __init__(self, health=5, damage=1, location=0, char, name, ID):
+    def __init__(self, char, name, ID, health=5, damage=1, location=0):
         self.health = health
         self.damage = damage
         super().__init__(location, char, ID)
