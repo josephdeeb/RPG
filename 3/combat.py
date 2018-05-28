@@ -11,6 +11,22 @@ def roll(amount, sides):
     return result
 
 
+def generateMapLine(bm, width):
+    final = "║"
+    counter = 2
+    allChars = []
+    for char in
+
+# taken from https://stackoverflow.com/questions/1541797/how-do-i-check-if-there-are-duplicates-in-a-flat-list?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+def checkDuplicates(theList):
+    seen = set()
+    for x in range(len(theList)):
+        if theList[x] in seen:
+            theList[x] = theList[x] + " "
+            return True
+        seen.add(theList[x])
+    return False
+
 def generateInterface(bm, width, height):
     final = "╔" + ("═" * width - 2) + "╗\n"
     final += "║"
@@ -22,6 +38,9 @@ def generateInterface(bm, width, height):
         if len(allChars[i]) > maxChars:
             maxChars = len(allChars[i])
 
+    # Figure out ithere are any repeats in allChars...
+    for i in
+
     for i in range(len(bm.map)):
         # if we have exhausted all available space, just stop printing the map.
         if counter >= width:
@@ -29,6 +48,28 @@ def generateInterface(bm, width, height):
             break
         # Otherwise, we have more space, add a space and then the appropriate char for the map
         final += " " + allChars........
+
+
+
+#79 max width
+
+
+"""
+╔═════════════════════════════════════════════════════════════════════════════╗
+║                                                                             ║
+║                                                                             ║
+║                                                                             ║
+║ É 2                                                                         ║
+║ É 1  _   _   Ú   Ü   _   _                                                  ║
+║                                                                             ║
+║                                                                             ║
+║                                                                             ║
+║                                                                             ║
+║                                                                             ║
+║                                                                             ║
+║ What would you like to do?                                                  ║
+╚═════════════════════════════════════════════════════════════════════════════╝
+"""
 
 
 
@@ -48,12 +89,14 @@ interface = """
 class IOAbstract:
     def getInput(self):
         return False
+
     def output(self, string):
         return False
 
 class IOCommandLine(IOAbstract):
     def getInput(self):
         string = input()
+
     def output(self, string):
         print(string)
 
@@ -72,9 +115,13 @@ class BattleMapBucket:
         self.bucket = bucket
         self.maxSize = maxSize
 
+    def getSize(self):
+        return len(self.bucket)
+
     def add(self, id):
         if len(self.bucket) >= self.maxSize:
             return False
+
         self.bucket.append(id)
         return True
 
@@ -84,11 +131,13 @@ class BattleMapBucket:
     def contains(self, id):
         if id in self.bucket:
             return True
+
         return False
 
     def getElement(self, n):
         if len(self.bucket) < n:
             return self.bucket[n]
+
         return False
 
     def getAllElements(self):
@@ -97,6 +146,7 @@ class BattleMapBucket:
     def isEmpty(self):
         if len(self.bucket) > 0:
             return False
+
         return True
 
     def __len__(self):
@@ -107,19 +157,43 @@ class BattleMap:
         self.combattants = combattants
         self.map = [BattleMapBucket() for x in range(size)]
 
-    def getChar(self, location):
-        if location > len(self.map) or location < 0:
-            return False
-        if self.map[location].isEmpty():
-            return " "
-        return retrieveCombattant(self, self.map[location].getElement(0)).char
+    def getMaxSize(self):
+        maxSize = 0
+        for thing in self.map:
+            if thing.getSize() > maxSize:
+                maxSize = thing.getSize()
 
-    def getAllChars(self, location):
+        return maxSize
+
+    def getChar(self, location, n=-1):
+        if n = -1:
+            if location > len(self.map) or location < 0:
+                return False
+
+            if self.map[location].isEmpty():
+                return " "
+
+            return retrieveCombattant(self, self.map[location].getElement(0)).char
+
+        else:
+            char = retrieveCombattant(self.map[location].getElement(n)).char
+
+    def getAllChars(self, location, numbered=False):
         if location > len(self.map) or location < 0:
             return False
+
         if self.map[location].isEmpty():
             return [" "]
-        return self.map[location].getAllElements()
+
+        if numbered == False:
+            return [retrieveCombattant(x).char for x in self.map[location].getAllElements()]
+
+        else:
+            returned = []
+            seen = set()
+            for x in self.map[location].getAllements():
+                char = retrieveCombattant(x).char
+                if char
 
     def move(self, id, amount):
         combattant = self.retrieveCombattant(id)
@@ -127,12 +201,15 @@ class BattleMap:
         newPos = position + amount
         if newPos >= len(self.map):
             newPos = len(self.map) - 1
+
         elif newPos < 0:
             newPos = 0
+
         if self.map[newPos].add(id) == True:
             self.map[position].remove(id)
             combattant.location = newPos
             return True
+
         else:
             return False
 
@@ -165,6 +242,7 @@ class SimpleCombattant(CombattantAbstract):
         newHealth = self.health - damage
         if newHewlth < 0:
             self.health = 0
+
         self.health = newHealth
 
     def getDamage(self):
