@@ -1,6 +1,13 @@
 import random
 
+"""
+Bugs that will probably arise:
+    When checking duplicates in battleMap and changing temp chars, the map printing function is not prepared to deal with any two digit duplicate count
 
+"""
+
+
+"""
 def roll(amount, sides):
     result = 0
     print("\nRolling {}d{}...".format(amount,sides))
@@ -10,19 +17,23 @@ def roll(amount, sides):
         result += rand
     print("Total: {}\n".format(result))
     return result
-
+"""
 
 # taken from https://stackoverflow.com/questions/1541797/how-do-i-check-if-there-are-duplicates-in-a-flat-list?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+# FIX THIS:
+# THIS WON'T CONSISTENTLY KEEP CHARACTERS AS 1 OR 2, ETC.
+# FIXED IN BATTLEMAP AS changeTempCharDuplicates(), THIS FUNCTION IS NOW DEFUNCT
 def checkDuplicates(theList):
     seen = set()
     count = {x: -1 for x in theList}
 
     for x in range(len(theList)):
-        if theList[x] == " ":
+        if theList[x] == " " or theList[x] == "_":
             pass
-        count[theList[x]] += 1
-        if theList[x] in seen:
-            theList[x] = theList[x] + " " + str(count[theList[x]])
+        else:
+            count[theList[x]] += 1
+            if theList[x] in seen:
+                theList[x] = theList[x] + " " + str(count[theList[x]])
 
         seen.add(theList[x])
 
@@ -30,29 +41,35 @@ def checkDuplicates(theList):
 
 
 def generateInterface(bm, width, height):
-    final = "╔" + ("═" * width - 2) + "╗\n"
-    final += "║"
+    final = "╔" + ("═" * (width - 2)) + "╗\n"
     counter = 2
-    allChars = []
     maxChars = 0
-    for i in range(len(bm.map)):
-        allChars.append(bm.getAllChars(i))
-        if len(allChars[i]) > maxChars:
-            maxChars = len(allChars[i])
-
+    offset = 0
     # Figure out ithere are any repeats in allChars...
     merged = []
+    bm.changeTempCharDuplicates()
     for x in range(len(bm.map)):
-        merged += bm.map[x]
-    merged = checkDuplicates(merged)
+        merged += bm.getAllChars(x, True)[::-1] #the [::-1] puts it in reverse so it's bottom aligned
+        merged += ["_"]
+    print(merged)
+    #merged = checkDuplicates(merged)
+    #print(merged)
 
-    for i in range(len(bm.map)):
-        # if we have exhausted all available space, just stop printing the map.
-        if counter >= width:
-            final += "║"
-            break
-        # Otherwise, we have more space, add a space and then the appropriate char for the map
-        final += " " + allChars........
+    # For each row in map:
+    for x in range(bm.getFullMaxSize()+1): #+1 accounts for extra space for the underscore
+        final += "║ "
+        # For each column in the map:
+        for i in range(len(bm.map)):
+            char = merged[(i*(bm.getFullMaxSize()+1)) + x] #+1 accounts for extra space for the underscore
+            if len(char) > 1:
+                final += char
+
+            else:
+                final += (" " + char + " ")
+
+        final += " ║\n"
+
+    return final
 
 
 
@@ -93,6 +110,8 @@ interface = """
 
 
 
+"""
+
 class IOAbstract:
     def getInput(self):
         return False
@@ -117,13 +136,21 @@ class BattleHandler:
         battleGoing = True
         while battleGoing:
 
+"""
+
 class BattleMapBucket:
-    def __init__(self, bucket=[" " for x in range(maxSize)], maxSize=4):
-        self.bucket = bucket
+    def __init__(self, maxSize=4, bucket=False):
         self.maxSize = maxSize
+        if bucket == False:
+            self.bucket = []
+        else:
+            self.bucket = bucket
 
     def getSize(self):
         return len(self.bucket)
+
+    def getMaxSize(self):
+        return self.maxSize
 
     def add(self, id):
         if len(self.bucket) >= self.maxSize:
@@ -156,14 +183,46 @@ class BattleMapBucket:
 
         return True
 
+    def isFull(self):
+        if len(self.bucket) >= self.maxSize:
+            return True
+
+        return False
+
     def __len__(self):
         return len(self.bucket)
 
 
 class BattleMap:
-    def __init__(self, combattants, size=6):
+    def __init__(self, combattants={}, size=6):
         self.combattants = combattants
         self.map = [BattleMapBucket() for x in range(size)]
+
+    def changeTempCharDuplicates(self):
+        seen = set()
+        count = {y.char: -1 for x, y in self.combattants.items()}
+        for key, value in self.combattants.items():
+            count[value.char] += 1
+            #If the character has been seen before:
+            if value.char in seen:
+                # Set the tempChar of the combattant to be it + its count
+                value.tempChar = value.char + " " + str(count[value.char])
+            # Character has not been seen before
+            else:
+                value.tempChar = value.char
+                seen.add(value.char)
+
+    def addCombattant(self, combattant):
+        if self.map[combattant.location].isFull():
+            return False
+        else:
+            if self.map[combattant.location].add(combattant.ID) == False:
+                print("ERROR: Cannot add combattant to given BattleMapBucket")
+                return False
+            else:
+                self.combattants[combattant.ID] = combattant
+                return True
+
 
     def getMaxSize(self):
         maxSize = 0
@@ -174,36 +233,65 @@ class BattleMap:
 
         return maxSize
 
+    def getFullMaxSize(self):
+        maxSize = 0
+        for thing in self.map:
+            if thing.getMaxSize() > maxSize:
+                maxSize = thing.getMaxSize()
+
+        return maxSize
+
     def getChar(self, location, n=-1):
-        if n == -1:
-            if location > len(self.map) or location < 0:
-                return False
-
-            if self.map[location].isEmpty():
-                return " "
-
-            return retrieveCombattant(self, self.map[location].getElement(0)).char
-
-        else:
-            char = retrieveCombattant(self.map[location].getElement(n)).char
-
-    def getAllChars(self, location, numbered=False):
         if location > len(self.map) or location < 0:
             return False
 
         if self.map[location].isEmpty():
-            return [" "]
-
-        if numbered == False:
-            return [retrieveCombattant(x).char for x in self.map[location].getAllElements()]
+            return " "
 
         else:
-            returned = []
-            seen = set()
-            char = " "
-            for x in self.map[location].getAllElements():
-                char = retrieveCombattant(x).char
-                #if char
+            if self.map[location].getElement(n) == -1:
+                return " "
+
+            else:
+                return self.retrieveCombattant(self.map[location].getElement(n)).char
+
+
+    def getAllChars(self, location, temp=False):
+        if location > len(self.map) or location < 0:
+            return False
+
+        returned = []
+        allElements = self.map[location].getAllElements()
+
+        if temp == False:
+            for x in range(len(allElements)):
+                if allElements[x] == -1:
+                    returned += " "
+
+                else:
+                    returned += self.retrieveCombattant(allElements[x]).char
+
+            newLen = self.map[location].getMaxSize() - len(returned)
+            if newLen > 0:
+                for x in range(newLen):
+                    returned.append(" ")
+
+        else:
+            for x in range(len(allElements)):
+                if allElements[x] == -1:
+                    returned += " "
+
+                else:
+                    returned += [self.retrieveCombattant(allElements[x]).tempChar]
+                    print(returned)
+
+            newLen = self.map[location].getMaxSize() - len(returned)
+            if newLen > 0:
+                for x in range(newLen):
+                    returned.append(" ")
+
+        return returned
+
 
     def move(self, id, amount):
         combattant = self.retrieveCombattant(id)
@@ -237,6 +325,7 @@ class CombattantAbstract:
         self.name = name
         self.ID = ID
         self.location = location
+        self.tempChar = char
 
     def takeDamage(self, damage):
         return False
@@ -249,7 +338,7 @@ class SimpleCombattant(CombattantAbstract):
     def __init__(self, char, name, ID, health=5, damage=1, location=0):
         self.health = health
         self.damage = damage
-        super().__init__(location, char, ID)
+        super().__init__(char, name, ID, location)
 
     def takeDamage(self, damage):
         newHealth = self.health - damage
@@ -261,6 +350,7 @@ class SimpleCombattant(CombattantAbstract):
     def getDamage(self):
         return self.damage
 
+"""
 
 class DMG_TYPE:
     PIERCE = 1
@@ -283,3 +373,5 @@ class Combatter:
         defense = self.defenses[type]
         damage = int(round(roll * defense))
         self.health = self.health - damage
+
+"""
