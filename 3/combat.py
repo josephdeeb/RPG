@@ -6,7 +6,7 @@ Bugs that will probably arise:
 
 """
 
-
+# len(map) - max = x
 """
 def roll(amount, sides):
     result = 0
@@ -18,6 +18,33 @@ def roll(amount, sides):
     print("Total: {}\n".format(result))
     return result
 """
+
+def generateInterface2(bm, width, height, center=0):
+    combatSpaceSize = 4 # each space has one space then the char then two spaces after
+    maxDisplayableCombatSpaces = (width - 2) // combatSpaceSize # Max displayable combat spaces is the spaces in the center (width - 2) divided by the size of each space with no remainder
+    # interface will be the final string result to print, conforming to the given width and height
+    # First create the top line of the interface box
+    interface = "╔" + ("═" * (width - 2)) + "╗\n" # width - 2 because 2 chars are the corners
+    # Next, we need to start generating rows of the battlefield
+
+    mergedColumns = []
+    # If the map is larger than the max displayable combat spaces then start from center and go until no more spaces available
+    if len(bm.map) > maxDisplayableCombatSpaces:
+        for x in range(center, (center + maxDisplayableCombatSpaces)):
+            mergedColumns += [bm.getAllChars(x, True)[::-1] + ["_"]]
+    # Otherwise, just print entire map
+    else:
+        for x in range(len(bm.map)):
+            mergedColumns += [bm.getAllChars(x, True)[::-1] + ["_"]] # True for tempChars, [::-1] puts it in reverse so its bottom aligned
+
+    # After this point, using len(bm.map) is not reliable.
+
+    rows = bm.getFullMaxSize() + 1 # 1 added for the underscores
+    for row in range(rows):
+        # For each row, we set a space 
+
+
+
 
 # taken from https://stackoverflow.com/questions/1541797/how-do-i-check-if-there-are-duplicates-in-a-flat-list?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
 # FIX THIS:
@@ -62,10 +89,10 @@ def generateInterface(bm, width, height):
         for i in range(len(bm.map)):
             char = merged[(i*(bm.getFullMaxSize()+1)) + x] #+1 accounts for extra space for the underscore
             if len(char) > 1:
-                final += char
+                final += char + " "
 
             else:
-                final += (" " + char + " ")
+                final += (" " + char + "  ")
 
         final += " ║\n"
 
@@ -206,7 +233,7 @@ class BattleMap:
             #If the character has been seen before:
             if value.char in seen:
                 # Set the tempChar of the combattant to be it + its count
-                value.tempChar = value.char + " " + str(count[value.char])
+                value.tempChar = value.char + "-" + str(count[value.char])
             # Character has not been seen before
             else:
                 value.tempChar = value.char
