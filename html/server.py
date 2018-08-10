@@ -3,8 +3,15 @@ import json
 import websockets
 import time
 
-USERS = set()
+USERS = dict()
 BEINGS = dict()
+STEP = 0
+NEXT_STEP = 0
+STEP_SIZE = 0.016 # in seconds, 16 milliseconds
+HEIGHT = 150
+WIDTH = 150
+
+"""
 ENTITIES = dict()
 NEW_BULLETS = dict()
 BULLETS = dict()
@@ -18,27 +25,157 @@ class Bullet:
         self.size = size
 
     def updatePosition(self):
+"""
 
 
-# Sending packets, we need:
-#   Sequence number of packet we are responding to for each client
-#   Newly created entities
-#   For each being that has changed:
-#       If the being has changed in view of the client, then send necessary movements for client to interpolate
-#       Otherwise, ignore that being and don't send any data regarding it
+class Player:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.velocityX = 0
+        self.accelerationX = 1
+        self.maxVelocityX = 2
+        self.velocityY = 0
+        self.accelerationY = 1
+        self.maxVelocityY = 2
+        self.size = 5
+        self.inputStep = 0
 
-def inputProcessing():
+    def move(self, waitUntil):
+        newX = self.x + self.velocityX
+        newY = self.y + self.velocityY
+        if newX > ((WIDTH - 1) - size):
+            newX = (WIDTH - 1) - size
+            self.velocityX = 0
 
+        elif newX < 0:
+            newX = 0
+            self.velocityX = 0
+
+        if newY > ((HEIGHT - 1) - size):
+            newY = (HEIGHT - 1) - size
+            self.velocityY = 0
+
+        elif newY < 0:
+            newY = 0
+            self.velocityY = 0
+
+        self.x = newX
+        self.y = newY
+
+        return delta
+
+    def handleMessage(self, message):
+        # message is a 4-tuple where each element is up, right, down, left, respectively
+        # If holding up AND down, do nothing
+        if not message[0]:
+            if not message[1]:
+                if not message[2]:
+                    if not message[3]:
+                        return
+
+        if message[0] and message[2]:
+            pass
+
+        # Else if holding up AND NOT down, go upwards
+        elif message[0] and (not message[2]):
+            if self.velocityY >= self.maxVelocityY:
+                self.velocityY = self.maxVelocityY
+
+            else:
+                if self.velocityY + self.accelerationY >= self.maxVelocityY:
+                    self.velocityY = self.maxVelocityY
+
+                else:
+                    self.velocityY += self.accelerationY
+
+        # Else if (NOT holding up) AND holding down, go down
+        elif (not message[0]) and message[2]:
+            if self.velocityY <= -self.maxVelocityY:
+                self.velocityY = -self.maxVelocityY
+
+            else:
+                if self.velocityY - self.accelerationY <= -self.maxVelocityY:
+                    self.velocityY = -self.maxVelocityY
+
+                else:
+                    self.velocityY -= self.accelerationY
+
+        # If holding right AND left, do nothing
+        if message[1] and message[3]:
+            pass
+
+        # Else if holding right AND NOT left, go right
+        elif message[1] and (not message[3]):
+            if self.velocityX >= self.maxVelocityX:
+                self.velocityX = self.maxVelocityX
+
+            else:
+                if self.velocityX + self.accelerationX >= self.maxVelocityX:
+                    self.velocityX = self.maxVelocityX
+
+                else:
+                    self.velocityX += self.accelerationX
+
+        # Else if (NOT holding right) AND holding left, go left
+        elif (not message[1]) and message[3]:
+            if self.velocityX <= -self.maxVelocityX:
+                self.velocityX = -self.maxVelocityX
+
+            else:
+                if self.velocityX - self.accelerationX <= -self.maxVelocityX:
+                    self.velocityX = -self.maxVelocityX
+
+                else:
+                    self.velocityX -= self.accelerationX
 
 def getStateJSON():
-    return json.dumps({'beings': BEINGS, 'new_bullets': NEW_BULLETS})
+    return json.dumps({'beings': {x: }, 'step': STEP})
 
-async def register(websocket):
-    USERS.add(websocket)
+async def notifyState():
+    if USERS:
+        message = getStateJSON()
+        await asyncio.wait([user.send(message) for user in USERS])
 
-async def inputHandler(websocket, path):
-    await register(websocket)
+def register(websocket):
+    USERS[websocket] = Player(0, 0)
+    print('USER JOINED')
+
+def unregister(websocket):
+    USERS[websocket] = None
+    print('USER LEFT')
+
+async def mainLoop():
+    now = time.time()
+
+
+async def connection(websocket, path):
+    register(websocket)
     try:
-        await websocket.send(getStateJSON())
+        # Whenever a message is received in the websocket...
         async for message in websocket:
-            await inputProcessing(message)
+            # If the message is received sooner than when the step is supposed to occur, then wait until STEP
+            currentTime = time.time()
+            if currentTime < STEP:
+                await asyncio.sleep(STEP - currentTime)
+
+            # Now it's time for the step to occur
+            player = USERS[webosocket]
+            # Handle the message
+            player.handleMessage(message)
+"""
+            # Move the player
+            player.move()
+
+            currentTime = time.time()
+            delta = NEXT_STEP - currentTime
+            # If there's time between now and NEXT_STEP, wait at least that long
+            if delta > 0:
+                await asyncio.sleep(time.time() - NEXT_STEP)
+
+            # Send game data now that we're at NEXT_STEP, then wait for next message
+            await websocket.send(getStateJSON())
+"""
+
+    finally:
+        unregister(websocket)
