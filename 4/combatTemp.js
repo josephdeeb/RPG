@@ -86,16 +86,31 @@ function defaultGameObjectMove(input) {
         self.velX = newVelX;
     }
 
-
+    this.x += this.velX;
+    this.y += this.velY;
 }
 
 
-function gameObjectConstructor(x = 0, y = 0) {
+function gameObjectConstructor(x = 0, y = 0, width = 2, height = 2) {
     this.x = x;
     this.y = y;
+    this.width = width;
+    this.height = height;
     this.velX = 0;
     this.velY = 0;
     this.accel = 2;
     this.friction = 1;
-    this.maxVel = 5
+    this.maxVel = 5;
+    this.move = defaultGameObjectMove;
+}
+
+function mapConstructor(width, height, cellSize) {
+    this.width = width;
+    this.height = height;
+    // cellSize has to be a multiple of width and height
+    this.cellSize = cellSize;
+    this.cells = new Array((width*height)/cellSize);
+    for (i = 0; i < ((width+height)/cellSize); i++) {
+        this.cells[i] = [];
+    }
 }
