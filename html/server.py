@@ -2,6 +2,7 @@ import asyncio
 import json
 import websockets
 import time
+import threading
 
 USERS = dict()
 BEINGS = dict()
@@ -27,7 +28,7 @@ class Bullet:
     def updatePosition(self):
 """
 
-
+"""
 class Player:
     def __init__(self, x, y):
         self.x = x
@@ -129,8 +130,36 @@ class Player:
                 else:
                     self.velocityX -= self.accelerationX
 
+"""
+
+class MessageQueue:
+    def __init__(self):
+        self.queue = []
+
+    def push(self, message):
+        self.queue.append(message)
+
+    def pop(self):
+        return self.queue.pop(0)
+
+    def get(self, index):
+        return self.queue[index]
+
+class Player:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.messages = MessageQueue()
+
+    def receiveMessage(self, message):
+        self.messages.push(message)
+
+    def processMessage(self):
+        msg = self.messages.pop()
+        if msg ==
+
 def getStateJSON():
-    return json.dumps({'beings': {x: }, 'step': STEP})
+    return json.dumps({'users': **USERS})
 
 async def notifyState():
     if USERS:
@@ -147,6 +176,8 @@ def unregister(websocket):
 
 async def mainLoop():
     now = time.time()
+    await notifyState()
+    await asyncio.sleep(time)
 
 
 async def connection(websocket, path):
@@ -154,6 +185,9 @@ async def connection(websocket, path):
     try:
         # Whenever a message is received in the websocket...
         async for message in websocket:
+            USERS[websocket].receiveMessage(message)
+
+            """
             # If the message is received sooner than when the step is supposed to occur, then wait until STEP
             currentTime = time.time()
             if currentTime < STEP:
@@ -163,7 +197,7 @@ async def connection(websocket, path):
             player = USERS[webosocket]
             # Handle the message
             player.handleMessage(message)
-"""
+
             # Move the player
             player.move()
 
@@ -179,3 +213,12 @@ async def connection(websocket, path):
 
     finally:
         unregister(websocket)
+
+
+class ServerThread(threading.Thread):
+    def __init__(self, name):
+        threading.Thread.__init__(self)
+        self.name = name
+
+    def run(self):
+        asyncio.get_event_loop().run_until_complete(websockets.serve(connection, 'localhost', 6789))
