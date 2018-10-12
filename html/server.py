@@ -5,6 +5,7 @@ import time
 import threading
 
 USERS = dict()
+USERS_LOCK = threading.RLock()
 BEINGS = dict()
 STEP = 0
 NEXT_STEP = 0
@@ -156,38 +157,75 @@ class Player:
 
     def processMessage(self):
         msg = self.messages.pop()
-        if msg ==
 
 def getStateJSON():
-    return json.dumps({'users': **USERS})
+    with USERS_LOCK:
+        return json.dumps(USERS)
 
 async def notifyState():
-    if USERS:
-        message = getStateJSON()
-        await asyncio.wait([user.send(message) for user in USERS])
+    while True:
+        startTime = time.time()
+        nextTime = startTime + (16 / 1000)
+        with USERS_LOCK:
+            if USERS:
+                message = getStateJSON()
+                await asyncio.wait([user.send(message) for user in USERS])
+
+        endTime = time.time()
+        delta = endTime - nextTime
+        if endTime > 0:
+            await asyncio.sleep(time.time() - nextTime) #16 milliseconds since starting
+
+        else:
+            continue
+
 
 def register(websocket):
-    USERS[websocket] = Player(0, 0)
-    print('USER JOINED')
+    with USERS_LOCK:
+        USERS[websocket] = Player(0, 0)
+        print('USER JOINED')
 
 def unregister(websocket):
-    USERS[websocket] = None
-    print('USER LEFT')
+    with USERS_LOCK:
+        USERS[websocket] = None
+        print('USER LEFT')
 
-async def mainLoop():
-    now = time.time()
-    await notifyState()
-    await asyncio.sleep(time)
+async def connection(websocket, path):
+    print("ha")
+    register(websocket)
+    try:
+        # Whenever a message is received in the websocket...
+        async for message in websocket:
+            with USERS_LOCK:
+                USERS[websocket].receiveMessage(message)
+    finally:
+        unregister(websocket)
 
 
+"""
+async def connection(websocket, path):
+    print("\n\n\nha\n\n\n")
+    register(websocket)
+    try:
+        # Whenever a message is received in the websocket...
+        async for message in websocket:
+            with USERS_LOCK:
+                USERS[websocket].receiveMessage(message)
+    finally:
+        unregister(websocket)
+"""
+
+
+"""
 async def connection(websocket, path):
     register(websocket)
     try:
         # Whenever a message is received in the websocket...
         async for message in websocket:
             USERS[websocket].receiveMessage(message)
+"""
 
-            """
+"""
             # If the message is received sooner than when the step is supposed to occur, then wait until STEP
             currentTime = time.time()
             if currentTime < STEP:
@@ -211,14 +249,28 @@ async def connection(websocket, path):
             await websocket.send(getStateJSON())
 """
 
-    finally:
-        unregister(websocket)
-
-
-class ServerThread(threading.Thread):
+class BroadcastThread(threading.Thread):
     def __init__(self, name):
         threading.Thread.__init__(self)
         self.name = name
 
     def run(self):
-        asyncio.get_event_loop().run_until_complete(websockets.serve(connection, 'localhost', 6789))
+        asyncio.get_event_loop().run_until_complete(notifyState())
+
+class ConnectionThread(threading.Thread):
+    def __init__(self, name):
+        threading.Thread.__init__(self)
+        self.name = name
+
+    def run(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        asyncio.get_event_loop().run_until_complete(websockets.serve(connection, 'localhost', 8000))
+        asyncio.get_event_loop().run_forever()
+
+
+
+connectThread = ConnectionThread("connect")
+notifyThread = BroadcastThread("notify")
+
+connectThread.start()
