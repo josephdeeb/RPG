@@ -1,5 +1,67 @@
 function start() {
-    
+
+}
+
+class Object {
+    constructor(collisionBody, velX, velY, sprite) {
+        this.collisionBody = collisionBody;
+        this.velX = velX;
+        this.velY = velY;
+        this.sprite = sprite;
+    }
+
+    update() {
+        this.collisionBody.x += this.velX;
+        this.collisionBody.y += this.velY;
+    }
+}
+
+class Map {
+    constructor(width, height, objects=[], system=new Collisions()) {
+        this.width = width;
+        this.height = height;
+        this.objects = objects;
+
+        this.system = new Collisions();
+        this.result = system.createResult();
+        this.changes = {'REMOVE' = [], 'ADD' = []};
+    }
+
+    update() {
+        // If we are supposed to remove bodies...
+        if (this.changes['REMOVE'].length != 0) {
+            // For each body, starting at the top of the stack...
+            for (i = changes['REMOVE'].length; i > 0; i--) {
+                // Remove the body
+                system.remove(changes['REMOVE'][i]);
+                // Pop it from the remove stack
+                this.changes['REMOVE'].pop()
+            }
+        }
+
+        // If we are supposed to add bodies...
+        if (this.changes['ADD'].length != 0) {
+            // For each body, starting at the top of the stack...
+            for (i = changes['ADD'].length; i > 0; i--) {
+                // Add the body
+                system.insert(changes['ADD'][i]);
+                // Pop it from the add stack
+                this.changes['ADD'].pop()
+            }
+        }
+
+        // Now any bodies that were supposed to be removed have been removed and any bodies that were supposed to be added have been added
+
+        // Update each object in the Map
+        for (i = 0; i < objects.length; i++) {
+            objects[i].update();
+        }
+
+        // Update the system for each change we've made
+        this.system.update();
+
+        // Now check for collisions between all bodies
+    }
 }
 
 
