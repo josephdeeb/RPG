@@ -1,4 +1,62 @@
+import Collisions from 'Collisions-master/src/Collisions.mjs';
+
+let Application = PIXI.Application,
+    loader = PIXI.loader,
+    resources = PIXI.loader.resources,
+    Sprite = PIXI.Sprite;
+
+let app = new Application({width: 256, height: 256});
+
+document.body.appendChild(app.view);
+
+loader.add("assets/test.json").load(setup);
+
+let gameScene;
+
 function start() {
+}
+
+function setup() {
+    gameScene = new Container();
+    app.stage.addChild(gameScene);
+
+    // id is our texture atlas
+    id = resources["assets/test.json"].textures;
+    // player is the object for the player
+    player = new Object(new Polygon(0, 0, [[0, 0], [32, 0], [32, 32], [0, 32]]),
+        0,
+        0,
+        new Sprite(id["smiley.png"])
+    );
+    // mapTiles is the tiles for map
+    mapTiles = [
+        [0, 1, 0, 1],
+        [1, 0, 1, 0],
+        [0, 1, 0, 1],
+        [1, 0, 1, 0]
+    ];
+
+    // Time to make the tileSet
+    // atlas = id
+    mapFunc = [
+        "bfloortile.png",
+        "pfloortile.png",
+    ];
+    mapTileSet = new TileSet(id, mapFunc);
+
+
+    map = new Map(128, 128, id);
+
+}
+
+class TileSet {
+    constructor(atlas, func) {
+        // Atlas is the texture atlas for the tile set
+        this.atlas = atlas;
+        // func is an array full of textures from the atlas where you can retrieve a texture given its index.
+        this.func = func;
+    }
+
 
 }
 
@@ -17,10 +75,13 @@ class Object {
 }
 
 class Map {
-    constructor(width, height, objects=[], system=new Collisions()) {
+    constructor(width, height, tileset, objects=[], tiles=[], views=[], system=new Collisions()) {
         this.width = width;
         this.height = height;
+        this.tileset = tileset;
         this.objects = objects;
+        this.tiles = tiles;
+        this.views = views;
 
         this.system = new Collisions();
         this.result = system.createResult();
@@ -31,7 +92,7 @@ class Map {
         // If we are supposed to remove bodies...
         if (this.changes['REMOVE'].length != 0) {
             // For each body, starting at the top of the stack...
-            for (i = changes['REMOVE'].length; i > 0; i--) {
+            for (i = this.changes['REMOVE'].length; i > 0; i--) {
                 // Remove the body
                 system.remove(changes['REMOVE'][i]);
                 // Pop it from the remove stack
@@ -42,7 +103,7 @@ class Map {
         // If we are supposed to add bodies...
         if (this.changes['ADD'].length != 0) {
             // For each body, starting at the top of the stack...
-            for (i = changes['ADD'].length; i > 0; i--) {
+            for (i = this.changes['ADD'].length; i > 0; i--) {
                 // Add the body
                 system.insert(changes['ADD'][i]);
                 // Pop it from the add stack
@@ -61,6 +122,24 @@ class Map {
         this.system.update();
 
         // Now check for collisions between all bodies
+
+        // CHECKING DONE...
+
+        // Now update all the views
+        for (i = 0; i < this.views.length; i++) {
+
+        }
+    }
+}
+
+class View {
+    constructor(width, height, x, y, tileset, sprites=[], tiles=[]) {
+        this.width = width;
+        this.height = height;
+        this.x = x;
+        this.y = y;
+        this.tileset = tileset;
+        this.sprites = sprites;
     }
 }
 
